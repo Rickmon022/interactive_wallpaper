@@ -6,6 +6,8 @@ import os
 detector = MTCNN()
 cap = cv2.VideoCapture(0)
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 wallpapers = {
     "left4": "assets/left4.png",
     "left3": "assets/left3.png",
@@ -18,25 +20,20 @@ wallpapers = {
     "right4": "assets/right4.png"
 }
 
-def set_wallpaper(dir):
-    img_path = os.path.abspath(wallpapers[dir])
-
-    subprocess.run([
-        "hyprctl",
-        "hyprpaper",
-        "wallpaper",
-        f",{img_path}"
-    ])
-
 def set_wallpaper(direction):
-    image_path = os.path.abspath(wallpapers[direction])
+    image_path = os.path.join(BASE_DIR, wallpapers[direction])
 
-    subprocess.run([
-        "hyprctl",
-        "hyprpaper",
-        "wallpaper",
-        f"eDP-1,{image_path}"
-    ], check=True)
+    result = subprocess.run(
+        ["caelestia", "wallpaper", "-f", image_path],
+        capture_output=True,
+        text=True
+    )
+
+    if result.returncode != 0:
+        print("Wallpaper error:", result.stderr)
+        return False
+
+    return True
 
 curr_dir = "center"
 set_wallpaper("center")
